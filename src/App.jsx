@@ -80,6 +80,7 @@ export default function App() {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [manualChargeCosts, setManualChargeCosts] = useState(() => loadManualChargeCosts());
   const [importedActivities, setImportedActivities] = useState(() => loadImportedActivities());
+  const [showImport, setShowImport] = useState(false);
 
   useEffect(() => {
     fetch(`./data/abrp_data.json?v=0.2.5-${Date.now()}`)
@@ -199,7 +200,8 @@ export default function App() {
     return <main className="app-shell"><div className="empty-state">Cargando datos ABRP…</div></main>;
   }
 
-  const [showImport, setShowImport] = useState(!data.activities.length);
+  const hasData = data.activities.length > 0;
+  const importVisible = showImport || !hasData;
 
   return (
     <main className="app-shell">
@@ -211,13 +213,13 @@ export default function App() {
           )}
         </div>
         <div className="top-bar-right">
-          <button className={`ghost-button compact${showImport ? ' active' : ''}`} onClick={() => setShowImport(!showImport)}>
-            {showImport ? '✕ Cerrar' : '↑ Importar Excel'}
+          <button className={`ghost-button compact${importVisible ? ' active' : ''}`} onClick={() => setShowImport(!showImport)}>
+            {importVisible ? '✕ Cerrar' : '↑ Importar Excel'}
           </button>
         </div>
       </header>
 
-      {showImport && (
+      {importVisible && (
         <ImportPanel
           importedActivities={importedActivities}
           onImportActivities={handleImportActivities}
