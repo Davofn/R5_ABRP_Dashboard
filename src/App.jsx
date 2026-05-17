@@ -199,32 +199,34 @@ export default function App() {
     return <main className="app-shell"><div className="empty-state">Cargando datos ABRP…</div></main>;
   }
 
+  const [showImport, setShowImport] = useState(!data.activities.length);
+
   return (
     <main className="app-shell">
-      <header className="hero">
-        <div>
-          <p className="eyebrow">Renault 5 E-Tech · ABRP</p>
-          <h1>Dashboard de viajes y cargas</h1>
-          <p>
-            {data.activities.length ? `Periodo ${data.days[0]?.date || '?'} → ${data.days[data.days.length - 1]?.date || '?'}.` : 'Sin datos cargados todavía.'} Primera versión separada de la app de consumo,
-            pensada para análisis desde PC y consulta desde móvil. Une automáticamente tramos de trayecto y cargas consecutivas cuando ABRP las parte por huecos de señal o cortes breves.
-          </p>
+      <header className="top-bar">
+        <div className="top-bar-left">
+          <h1>R5 ABRP Dashboard</h1>
+          {data.activities.length > 0 && (
+            <span className="top-bar-period">{data.days[0]?.date || ''} → {data.days[data.days.length - 1]?.date || ''}</span>
+          )}
         </div>
-        <div className="hero-badge">
-          <span>v0.2.6</span>
-          <strong>{data.stats.files || 0}</strong>
-          <small>Excel detectados</small>
+        <div className="top-bar-right">
+          <button className={`ghost-button compact${showImport ? ' active' : ''}`} onClick={() => setShowImport(!showImport)}>
+            {showImport ? '✕ Cerrar' : '↑ Importar Excel'}
+          </button>
         </div>
       </header>
 
-      <ImportPanel
-        importedActivities={importedActivities}
-        onImportActivities={handleImportActivities}
-        onClearImported={handleClearImported}
-        onFactoryReset={handleFactoryReset}
-        onExportBackup={handleExportBackup}
-        onImportBackup={handleImportBackup}
-      />
+      {showImport && (
+        <ImportPanel
+          importedActivities={importedActivities}
+          onImportActivities={handleImportActivities}
+          onClearImported={handleClearImported}
+          onFactoryReset={handleFactoryReset}
+          onExportBackup={handleExportBackup}
+          onImportBackup={handleImportBackup}
+        />
+      )}
 
       <SummaryCards data={data} />
 
