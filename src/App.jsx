@@ -206,7 +206,7 @@ export default function App() {
           <p className="eyebrow">Renault 5 E-Tech · ABRP</p>
           <h1>Dashboard de viajes y cargas</h1>
           <p>
-            {data.activities.length ? `Periodo ${data.stats.from_date} → ${data.stats.to_date}.` : 'Sin datos cargados todavía.'} Primera versión separada de la app de consumo,
+            {data.activities.length ? `Periodo ${data.days[0]?.date || '?'} → ${data.days[data.days.length - 1]?.date || '?'}.` : 'Sin datos cargados todavía.'} Primera versión separada de la app de consumo,
             pensada para análisis desde PC y consulta desde móvil. Une automáticamente tramos de trayecto y cargas consecutivas cuando ABRP las parte por huecos de señal o cortes breves.
           </p>
         </div>

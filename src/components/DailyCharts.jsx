@@ -2,15 +2,15 @@ import { useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 
 const CHART_COLORS = {
-  drive: '#3b82f6',
-  charge: '#00E676',
-  driveBg: 'rgba(59, 130, 246, 0.35)',
-  chargeBg: 'rgba(0, 230, 118, 0.25)',
+  drive: '#60a5fa',
+  charge: '#34d399',
+  driveBg: 'rgba(96, 165, 250, 0.35)',
+  chargeBg: 'rgba(52, 211, 153, 0.25)',
   grid: 'rgba(148, 163, 184, 0.08)',
-  tick: '#64748b',
-  label: '#94a3b8',
-  tooltip: 'rgba(10, 16, 28, 0.95)',
-  tooltipBorder: 'rgba(148, 163, 184, 0.2)',
+  tick: '#5a6a80',
+  label: '#8896ab',
+  tooltip: 'rgba(15, 23, 41, 0.95)',
+  tooltipBorder: 'rgba(148, 163, 184, 0.15)',
 };
 
 export default function DailyCharts({ days }) {
@@ -25,12 +25,12 @@ export default function DailyCharts({ days }) {
 
     /* Gradient fills */
     const driveGrad = ctx.createLinearGradient(0, 0, 0, 500);
-    driveGrad.addColorStop(0, 'rgba(59, 130, 246, 0.5)');
-    driveGrad.addColorStop(1, 'rgba(59, 130, 246, 0.02)');
+    driveGrad.addColorStop(0, 'rgba(96, 165, 250, 0.5)');
+    driveGrad.addColorStop(1, 'rgba(96, 165, 250, 0.02)');
 
     const chargeGrad = ctx.createLinearGradient(0, 0, 0, 500);
-    chargeGrad.addColorStop(0, 'rgba(0, 230, 118, 0.4)');
-    chargeGrad.addColorStop(1, 'rgba(0, 230, 118, 0.02)');
+    chargeGrad.addColorStop(0, 'rgba(52, 211, 153, 0.4)');
+    chargeGrad.addColorStop(1, 'rgba(52, 211, 153, 0.02)');
 
     chartRef.current = new Chart(ctx, {
       type: 'bar',

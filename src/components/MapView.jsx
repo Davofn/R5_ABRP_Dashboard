@@ -47,7 +47,7 @@ export default function MapView({ activities, selectedDate, selectedActivity, on
         latLngs.forEach((p) => bounds.push(p));
         const isSelected = selectedActivity?.id === activity.id;
         const line = L.polyline(latLngs, {
-          color: isSelected ? '#38bdf8' : '#3b82f6',
+          color: isSelected ? '#60a5fa' : '#3b82f6',
           weight: isSelected ? 5 : 3,
           opacity: isSelected ? 1 : 0.6
         }).addTo(layer);
@@ -68,8 +68,8 @@ export default function MapView({ activities, selectedDate, selectedActivity, on
         bounds.push(p);
         const marker = L.circleMarker(p, {
           radius: selectedActivity?.id === activity.id ? 9 : 6,
-          color: '#00E676',
-          fillColor: '#00E676',
+          color: '#34d399',
+          fillColor: '#34d399',
           fillOpacity: 0.85,
           weight: 2
         }).addTo(layer);
