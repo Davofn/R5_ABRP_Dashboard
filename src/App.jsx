@@ -297,31 +297,15 @@ export default function App() {
               <section className="view-section">
                 <div className="view-header">
                   <h2>Viajes</h2>
-                  <div className="view-header-actions">
-                    {selectedActivity && (
-                      <button className="ghost-button compact" onClick={() => setSelectedActivity(null)}>← Volver al calendario</button>
-                    )}
-                  </div>
+                  {selectedActivity && (
+                    <button className="ghost-button compact" onClick={() => setSelectedActivity(null)}>← Volver al calendario</button>
+                  )}
                 </div>
 
-                {selectedActivity ? (
-                  <div className="two-col">
-                    <div className="col-main">
-                      <MapView activities={mapActivities} selectedDate={selectedDate} selectedActivity={selectedActivity} onSelectActivity={handleSelectActivity} />
-                    </div>
-                    <div className="col-side">
-                      <ActivityDetail activity={selectedActivity} onSaveChargeCost={handleSaveChargeCost} onDeleteActivity={handleDeleteActivity} />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="two-col">
-                    <div className="col-main">
-                      <CalendarView days={data.days} selectedDate={selectedDate} onSelectDate={handleSelectDate} onSelectActivity={handleSelectActivity} />
-                    </div>
-                    <div className="col-side">
-                      <MapView activities={mapActivities} selectedDate={selectedDate} selectedActivity={selectedActivity} onSelectActivity={handleSelectActivity} />
-                    </div>
-                  </div>
+                <CalendarView days={data.days} selectedDate={selectedDate} onSelectDate={handleSelectDate} onSelectActivity={handleSelectActivity} />
+                <MapView activities={mapActivities} selectedDate={selectedDate} selectedActivity={selectedActivity} onSelectActivity={handleSelectActivity} />
+                {selectedActivity && (
+                  <ActivityDetail activity={selectedActivity} onSaveChargeCost={handleSaveChargeCost} onDeleteActivity={handleDeleteActivity} />
                 )}
               </section>
             )}
@@ -337,21 +321,10 @@ export default function App() {
                 </div>
 
                 <ChargeSummaryCards data={data} />
-
-                {selectedActivity ? (
-                  <>
-                    <ChargingCurve charges={data.charges} selectedActivity={selectedActivity} onSelectCharge={handleSelectActivity} />
-                    <ActivityDetail activity={selectedActivity} onSaveChargeCost={handleSaveChargeCost} onDeleteActivity={handleDeleteActivity} />
-                  </>
-                ) : (
-                  <div className="two-col">
-                    <div className="col-main">
-                      <CalendarView days={data.days} selectedDate={selectedDate} onSelectDate={handleSelectDate} onSelectActivity={handleSelectActivity} />
-                    </div>
-                    <div className="col-side">
-                      <ChargingCurve charges={data.charges} selectedActivity={selectedActivity} onSelectCharge={handleSelectActivity} />
-                    </div>
-                  </div>
+                <CalendarView days={data.days} selectedDate={selectedDate} onSelectDate={handleSelectDate} onSelectActivity={handleSelectActivity} />
+                <ChargingCurve charges={data.charges} selectedActivity={selectedActivity} onSelectCharge={handleSelectActivity} />
+                {selectedActivity && (
+                  <ActivityDetail activity={selectedActivity} onSaveChargeCost={handleSaveChargeCost} onDeleteActivity={handleDeleteActivity} />
                 )}
               </section>
             )}
