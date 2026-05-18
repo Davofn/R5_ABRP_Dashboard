@@ -6,9 +6,9 @@ import ChargingCurve from './components/ChargingCurve.jsx';
 import DailyCharts from './components/DailyCharts.jsx';
 import ActivityDetail from './components/ActivityDetail.jsx';
 import ImportPanel from './components/ImportPanel.jsx';
-import { normalizeData } from './utils/calculations.js';
+import { normalizeData, HOME_KWH_PRICE_EUR } from './utils/calculations.js';
 import { loadActivities, saveActivities, deleteAllActivities, deleteActivity, loadManualCosts, saveManualCosts } from './utils/supabase.js';
-import { dateTimeLabel, fmtKm, fmtKwh, fmtMinutes, fmtNumber } from './utils/formatters.js';
+import { dateTimeLabel, fmtEur, fmtKm, fmtKwh, fmtMinutes, fmtNumber, fmtPercent } from './utils/formatters.js';
 import './styles.css';
 
 const MANUAL_CHARGE_COSTS_KEY = 'r5_abrp_manual_charge_costs_v1';
@@ -42,20 +42,60 @@ function buildData(activities, manualChargeCosts) {
   return normalizeData(raw, manualChargeCosts);
 }
 
-/* ── Sidebar nav items ── */
+/* ── Sidebar nav ── */
 const NAV_ITEMS = [
-  { id: 'resumen',    label: 'Resumen',    icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
-  { id: 'viajes',     label: 'Viajes',     icon: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7' },
-  { id: 'cargas',     label: 'Cargas',     icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
-  { id: 'calendario', label: 'Calendario', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
-  { id: 'ajustes',    label: 'Ajustes',    icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' },
+  { id: 'resumen', label: 'Resumen', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+  { id: 'viajes',  label: 'Viajes',  icon: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7' },
+  { id: 'cargas',  label: 'Cargas',  icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
+  { id: 'ajustes', label: 'Ajustes', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' },
 ];
 
 function NavIcon({ d }) {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d={d} /></svg>;
+}
+
+/* ── Charge Summary Cards (for Cargas view) ── */
+function ChargeSummaryCards({ data }) {
+  const { stats } = data;
+  const b = stats.charge_breakdown || {};
+  const totalKwh = stats.charge_kwh || 0;
+  const totalSessions = (b.ac_home_count || 0) + (b.ac_away_count || 0) + (b.dc_count || 0);
+  const totalCost = (b.home_cost_eur || 0) + (b.away_registered_cost_eur || 0);
+  const avgPerSession = totalSessions > 0 ? totalKwh / totalSessions : 0;
+
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d={d} />
-    </svg>
+    <div className="summary-grid charge-summary-grid">
+      <article className="summary-card">
+        <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+        <span className="card-label">Energía total</span>
+        <strong className="card-value">{fmtKwh(totalKwh)}</strong>
+        <small className="card-hint">{totalSessions} sesiones</small>
+      </article>
+      <article className="summary-card">
+        <div className="card-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 15l3.5-7"/><circle cx="12" cy="12" r="10"/></svg></div>
+        <span className="card-label">Pico DC</span>
+        <strong className="card-value">{fmtNumber(b.dc_max_power_kw, 1)} kW</strong>
+        <small className="card-hint">{b.dc_count || 0} cargas DC</small>
+      </article>
+      <article className="summary-card">
+        <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 15l3.5-7"/><circle cx="12" cy="12" r="10"/></svg></div>
+        <span className="card-label">Pico AC</span>
+        <strong className="card-value">{fmtNumber(b.ac_max_power_kw, 1)} kW</strong>
+        <small className="card-hint">{(b.ac_home_count || 0) + (b.ac_away_count || 0)} cargas AC</small>
+      </article>
+      <article className="summary-card">
+        <div className="card-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+        <span className="card-label">Media por sesión</span>
+        <strong className="card-value">{fmtNumber(avgPerSession, 1)} kWh</strong>
+        <small className="card-hint">media del periodo</small>
+      </article>
+      <article className="summary-card">
+        <div className="card-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 10h12"/><path d="M4 14h9"/><path d="M17 4a8 8 0 010 16"/></svg></div>
+        <span className="card-label">Coste total</span>
+        <strong className="card-value">{fmtEur(totalCost)}</strong>
+        <small className="card-hint">casa + fuera</small>
+      </article>
+    </div>
   );
 }
 
@@ -67,7 +107,6 @@ export default function App() {
   const [error, setError] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedActivity, setSelectedActivity] = useState(null);
-  const [showImport, setShowImport] = useState(false);
   const [activeView, setActiveView] = useState('resumen');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -78,13 +117,13 @@ export default function App() {
         const [remote, remoteCosts] = await Promise.all([loadActivities(), loadManualCosts()]);
         const local = loadLocalActivities();
         if (local.length && !remote.length) {
-          setSyncStatus('Migrando datos locales a la nube…');
+          setSyncStatus('Migrando…');
           await saveActivities(local);
           const localCosts = loadLocalCosts();
           if (Object.keys(localCosts).length) await saveManualCosts(localCosts);
           setActivities(local);
           setManualChargeCosts(localCosts);
-          setSyncStatus('✓ Migrado a Supabase');
+          setSyncStatus('✓ Migrado');
         } else {
           if (local.length && remote.length) {
             const merged = mergeActivities(remote, local);
@@ -93,20 +132,16 @@ export default function App() {
               const newOnes = merged.activities.filter((a) => localOnlyIds.has(a.id) && !remote.find((r) => r.id === a.id));
               if (newOnes.length) await saveActivities(newOnes);
               setActivities(merged.activities);
-            } else {
-              setActivities(remote);
-            }
-          } else {
-            setActivities(remote);
-          }
+            } else { setActivities(remote); }
+          } else { setActivities(remote); }
           setManualChargeCosts(remoteCosts || {});
-          setSyncStatus(remote.length ? `✓ ${remote.length} actividades` : '');
+          setSyncStatus(remote.length ? `✓ ${remote.length} act.` : '');
         }
       } catch (err) {
-        console.warn('Supabase unavailable, using localStorage:', err);
+        console.warn('Supabase unavailable:', err);
         setActivities(loadLocalActivities());
         setManualChargeCosts(loadLocalCosts());
-        setSyncStatus('⚠ Modo local');
+        setSyncStatus('⚠ Local');
       }
       setLoading(false);
     }
@@ -142,28 +177,22 @@ export default function App() {
   const handleImportActivities = useCallback(async (incoming) => {
     const result = mergeActivities(activities, incoming || []);
     setActivities(result.activities);
-    try {
-      setSyncStatus('Subiendo…');
-      await saveActivities(incoming || []);
-      setSyncStatus(`✓ ${result.activities.length} actividades`);
-    } catch (err) {
-      console.warn('Supabase save failed, saved locally:', err);
-      setSyncStatus('⚠ Guardado local');
-    }
+    try { setSyncStatus('Subiendo…'); await saveActivities(incoming || []); setSyncStatus(`✓ ${result.activities.length} act.`); }
+    catch (err) { console.warn(err); setSyncStatus('⚠ Local'); }
     localStorage.setItem(IMPORTED_ACTIVITIES_KEY, JSON.stringify(result.activities));
     return result;
   }, [activities]);
 
   const handleClearImported = useCallback(async () => {
-    if (!window.confirm('¿Borrar todas las actividades? Se eliminan de la nube y del navegador.')) return;
+    if (!window.confirm('¿Borrar todas las actividades?')) return;
     try { setSyncStatus('Borrando…'); await deleteAllActivities(); setSyncStatus(''); }
-    catch (err) { console.warn(err); setSyncStatus('⚠ Error al borrar'); }
+    catch (err) { console.warn(err); setSyncStatus('⚠ Error'); }
     setActivities([]); localStorage.removeItem(IMPORTED_ACTIVITIES_KEY);
     setSelectedActivity(null); setSelectedDate(null);
   }, []);
 
   const handleFactoryReset = useCallback(async () => {
-    if (!window.confirm('¿Reiniciar completamente? Se borran actividades y costes de la nube y el navegador.')) return;
+    if (!window.confirm('¿Reiniciar completamente?')) return;
     try { await deleteAllActivities(); } catch (err) { console.warn(err); }
     Object.keys(localStorage).filter((k) => k.startsWith('r5_abrp_')).forEach((k) => localStorage.removeItem(k));
     setActivities([]); setManualChargeCosts({}); setSelectedActivity(null); setSelectedDate(null); setSyncStatus('');
@@ -173,10 +202,8 @@ export default function App() {
     const payload = { version: 1, exported_at: new Date().toISOString(), activities };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'r5_abrp_dashboard_backup.json';
-    document.body.appendChild(a); a.click(); a.remove();
-    URL.revokeObjectURL(url);
+    const a = document.createElement('a'); a.href = url; a.download = 'r5_abrp_backup.json';
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
   }, [activities]);
 
   const handleImportBackup = useCallback((payload) => {
@@ -185,13 +212,13 @@ export default function App() {
   }, [handleImportActivities]);
 
   const handleDeleteActivity = useCallback(async (activityId) => {
-    if (!window.confirm('¿Borrar esta actividad? Se elimina de la nube y del navegador.')) return;
+    if (!window.confirm('¿Borrar esta actividad?')) return;
     const filtered = activities.filter((a) => a.id !== activityId);
     setActivities(filtered);
     if (selectedActivity?.id === activityId) setSelectedActivity(null);
     localStorage.setItem(IMPORTED_ACTIVITIES_KEY, JSON.stringify(filtered));
-    try { await deleteActivity(activityId); setSyncStatus(`✓ ${filtered.length} actividades`); }
-    catch (err) { console.warn(err); setSyncStatus('⚠ Error al borrar'); }
+    try { await deleteActivity(activityId); setSyncStatus(`✓ ${filtered.length} act.`); }
+    catch (err) { console.warn(err); setSyncStatus('⚠ Error'); }
   }, [activities, selectedActivity]);
 
   const handleSaveChargeCost = useCallback((chargeId, value) => {
@@ -200,21 +227,16 @@ export default function App() {
       const numeric = Number(value);
       if (!Number.isFinite(numeric) || numeric < 0) delete next[chargeId];
       else next[chargeId] = numeric;
-      saveManualCosts(next).catch((err) => console.warn('Cost save error:', err));
+      saveManualCosts(next).catch(console.warn);
       localStorage.setItem(MANUAL_CHARGE_COSTS_KEY, JSON.stringify(next));
       return next;
     });
   }, []);
 
-  function navigateTo(viewId) {
-    setActiveView(viewId);
-    setSidebarOpen(false);
-    if (viewId === 'ajustes') setShowImport(true);
-  }
+  function navigateTo(viewId) { setActiveView(viewId); setSidebarOpen(false); }
 
-  /* ── Render ── */
   if (loading) {
-    return <div className="app-loading"><div className="loading-spinner" /><p>Cargando datos ABRP…</p></div>;
+    return <div className="app-loading"><div className="loading-spinner" /><p>Cargando datos…</p></div>;
   }
 
   const hasData = data && data.activities.length > 0;
@@ -227,20 +249,13 @@ export default function App() {
           <div className="sidebar-logo">R5</div>
           <span className="sidebar-title">ABRP Dashboard</span>
         </div>
-
         <nav className="sidebar-nav">
           {NAV_ITEMS.map((item) => (
-            <button
-              key={item.id}
-              className={`nav-item${activeView === item.id ? ' active' : ''}`}
-              onClick={() => navigateTo(item.id)}
-            >
-              <NavIcon d={item.icon} />
-              <span>{item.label}</span>
+            <button key={item.id} className={`nav-item${activeView === item.id ? ' active' : ''}`} onClick={() => navigateTo(item.id)}>
+              <NavIcon d={item.icon} /><span>{item.label}</span>
             </button>
           ))}
         </nav>
-
         <div className="sidebar-footer">
           {syncStatus && <span className="sync-badge">{syncStatus}</span>}
           <small className="sidebar-version">v0.3.0</small>
@@ -255,112 +270,95 @@ export default function App() {
         <h1>R5 ABRP</h1>
         {syncStatus && <span className="sync-badge small">{syncStatus}</span>}
       </header>
-
       {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
 
-      {/* ── Main content ── */}
+      {/* ── Main ── */}
       <main className="main-content">
         {!hasData && activeView !== 'ajustes' ? (
           <div className="empty-state">
             <div>
               <h2>Sin datos cargados</h2>
               <p>Importa tus Excel de ABRP para empezar.</p>
-              <button className="ghost-button" onClick={() => navigateTo('ajustes')} style={{ marginTop: '1rem' }}>
-                Ir a Ajustes → Importar
-              </button>
+              <button className="ghost-button" onClick={() => navigateTo('ajustes')} style={{ marginTop: '1rem' }}>Ir a Ajustes → Importar</button>
             </div>
           </div>
         ) : (
           <>
-            {/* ── RESUMEN ── */}
+            {/* ══ RESUMEN ══ */}
             {activeView === 'resumen' && hasData && (
-              <section className="view-resumen">
+              <section className="view-section">
                 <SummaryCards data={data} />
-                <div className="resumen-grid">
-                  <div className="resumen-left">
-                    <MapView
-                      activities={mapActivities}
-                      selectedDate={selectedDate}
-                      selectedActivity={selectedActivity}
-                      onSelectActivity={handleSelectActivity}
-                    />
-                  </div>
-                  <div className="resumen-right">
-                    <ActivityDetail activity={selectedActivity} onSaveChargeCost={handleSaveChargeCost} onDeleteActivity={handleDeleteActivity} />
-                  </div>
-                </div>
                 <DailyCharts days={data.days} />
               </section>
             )}
 
-            {/* ── VIAJES ── */}
+            {/* ══ VIAJES ══ */}
             {activeView === 'viajes' && hasData && (
-              <section className="view-viajes">
+              <section className="view-section">
                 <div className="view-header">
                   <h2>Viajes</h2>
-                  <span className="muted">{data.drives?.length || 0} trayectos registrados</span>
-                </div>
-                <div className="viajes-grid">
-                  <div className="viajes-map">
-                    <MapView
-                      activities={mapActivities}
-                      selectedDate={selectedDate}
-                      selectedActivity={selectedActivity}
-                      onSelectActivity={handleSelectActivity}
-                    />
-                  </div>
-                  <div className="viajes-detail">
-                    <ActivityDetail activity={selectedActivity} onSaveChargeCost={handleSaveChargeCost} onDeleteActivity={handleDeleteActivity} />
-                    {selectedActivity ? null : (
-                      <div className="activity-list panel">
-                        <p className="eyebrow">Últimos trayectos</p>
-                        {(data.drives || []).slice(-10).reverse().map((drive) => (
-                          <button key={drive.id} onClick={() => handleSelectActivity(drive)}>
-                            <strong>{dateTimeLabel(drive.start)}</strong>
-                            <small>{fmtKm(drive.distance_km)} · {fmtMinutes(drive.duration_min)} · {fmtNumber(drive.avg_speed_kmh, 0)} km/h</small>
-                          </button>
-                        ))}
-                      </div>
+                  <div className="view-header-actions">
+                    {selectedActivity && (
+                      <button className="ghost-button compact" onClick={() => setSelectedActivity(null)}>← Volver al calendario</button>
                     )}
                   </div>
                 </div>
-              </section>
-            )}
 
-            {/* ── CARGAS ── */}
-            {activeView === 'cargas' && hasData && (
-              <section className="view-cargas">
-                <div className="view-header">
-                  <h2>Cargas</h2>
-                  <span className="muted">{data.charges?.length || 0} sesiones de carga</span>
-                </div>
-                <ChargingCurve
-                  charges={data.charges}
-                  selectedActivity={selectedActivity}
-                  onSelectCharge={handleSelectActivity}
-                />
-                <ActivityDetail activity={selectedActivity} onSaveChargeCost={handleSaveChargeCost} onDeleteActivity={handleDeleteActivity} />
-              </section>
-            )}
-
-            {/* ── CALENDARIO ── */}
-            {activeView === 'calendario' && hasData && (
-              <section className="view-calendario">
-                <CalendarView
-                  days={data.days}
-                  selectedDate={selectedDate}
-                  onSelectDate={handleSelectDate}
-                  onSelectActivity={handleSelectActivity}
-                />
-                {selectedActivity && (
-                  <ActivityDetail activity={selectedActivity} onSaveChargeCost={handleSaveChargeCost} onDeleteActivity={handleDeleteActivity} />
+                {selectedActivity ? (
+                  <div className="two-col">
+                    <div className="col-main">
+                      <MapView activities={mapActivities} selectedDate={selectedDate} selectedActivity={selectedActivity} onSelectActivity={handleSelectActivity} />
+                    </div>
+                    <div className="col-side">
+                      <ActivityDetail activity={selectedActivity} onSaveChargeCost={handleSaveChargeCost} onDeleteActivity={handleDeleteActivity} />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="two-col">
+                    <div className="col-main">
+                      <CalendarView days={data.days} selectedDate={selectedDate} onSelectDate={handleSelectDate} onSelectActivity={handleSelectActivity} />
+                    </div>
+                    <div className="col-side">
+                      <MapView activities={mapActivities} selectedDate={selectedDate} selectedActivity={selectedActivity} onSelectActivity={handleSelectActivity} />
+                    </div>
+                  </div>
                 )}
               </section>
             )}
 
-            {/* ── AJUSTES ── */}
+            {/* ══ CARGAS ══ */}
+            {activeView === 'cargas' && hasData && (
+              <section className="view-section">
+                <div className="view-header">
+                  <h2>Cargas</h2>
+                  {selectedActivity && (
+                    <button className="ghost-button compact" onClick={() => setSelectedActivity(null)}>← Volver</button>
+                  )}
+                </div>
+
+                <ChargeSummaryCards data={data} />
+
+                {selectedActivity ? (
+                  <>
+                    <ChargingCurve charges={data.charges} selectedActivity={selectedActivity} onSelectCharge={handleSelectActivity} />
+                    <ActivityDetail activity={selectedActivity} onSaveChargeCost={handleSaveChargeCost} onDeleteActivity={handleDeleteActivity} />
+                  </>
+                ) : (
+                  <div className="two-col">
+                    <div className="col-main">
+                      <CalendarView days={data.days} selectedDate={selectedDate} onSelectDate={handleSelectDate} onSelectActivity={handleSelectActivity} />
+                    </div>
+                    <div className="col-side">
+                      <ChargingCurve charges={data.charges} selectedActivity={selectedActivity} onSelectCharge={handleSelectActivity} />
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* ══ AJUSTES ══ */}
             {activeView === 'ajustes' && (
-              <section className="view-ajustes">
+              <section className="view-section">
                 <div className="view-header">
                   <h2>Ajustes</h2>
                   <span className="muted">Importar datos y gestionar el dashboard</span>
