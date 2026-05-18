@@ -79,6 +79,7 @@ button { cursor: pointer; }
 .top-bar-left h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; white-space: nowrap; color: var(--text-primary); }
 .top-bar-period { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-tertiary); white-space: nowrap; padding: 4px 12px; background: var(--bg-surface-2); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); }
 .top-bar-right { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+.sync-badge { font-size: 0.75rem; color: var(--accent-green); padding: 3px 10px; background: var(--accent-green-dim); border-radius: var(--radius-sm); border: 1px solid var(--border-accent); font-family: var(--font-mono); white-space: nowrap; }
 .ghost-button.compact.active { border-color: var(--border-accent); color: var(--accent-green); background: var(--accent-green-dim); }
 
 /* ── Eyebrow (used in panels) ── */

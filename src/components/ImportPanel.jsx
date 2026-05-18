@@ -94,7 +94,7 @@ export default function ImportPanel({ importedActivities, onImportActivities, on
         <div>
           <p className="eyebrow">Importador local</p>
           <h2>Subir Excel ABRP</h2>
-          <p className="panel-subtitle">Arrastra exportaciones de carga o trayecto con coordenadas. Se guardan en este navegador y se ignoran duplicados.</p>
+          <p className="panel-subtitle">Arrastra exportaciones de carga o trayecto con coordenadas. Se sincronizan con Supabase y se ignoran duplicados.</p>
         </div>
         <div className="import-actions">
           <button type="button" className="ghost-button" onClick={onExportBackup} disabled={!importedActivities.length}>Exportar backup</button>
@@ -123,8 +123,8 @@ export default function ImportPanel({ importedActivities, onImportActivities, on
       <input ref={backupInputRef} type="file" accept="application/json,.json" hidden onChange={handleBackupFile} />
 
       <div className="import-footer">
-        <span>{importedActivities.length} actividad(es) guardada(s) localmente en este navegador.</span>
-        <small>Reset total borra también datos/costes antiguos guardados en este navegador.</small>
+        <span>{importedActivities.length} actividad(es) sincronizadas.</span>
+        <small>Reset total borra datos de la nube y del navegador.</small>
       </div>
 
       {(status || lastImport || errors.length) ? (
