@@ -233,7 +233,7 @@ button { cursor: pointer; }
 .selected-grid span, .charge-summary span, .day-metrics span { background: var(--bg-surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 10px 14px; color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.88rem; }
 
 /* ── Calendar ── */
-.calendar-layout { display: grid; grid-template-columns: minmax(0,1.35fr) 420px; gap: 20px; }
+.calendar-layout { display: grid; grid-template-columns: minmax(0,1.35fr) 420px; gap: 20px; align-items: start; }
 .calendar { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 6px; }
 .weekday { color: var(--text-tertiary); font-weight: 700; text-align: center; padding: 8px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; }
 .calendar-cell { min-height: 88px; background: var(--bg-surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); color: var(--text-primary); padding: 10px; text-align: left; display: flex; flex-direction: column; gap: 6px; transition: all var(--transition-fast); }
@@ -246,7 +246,7 @@ button { cursor: pointer; }
 .calendar-dots { margin-top: auto; display: flex; gap: 5px; }
 
 /* ── Day Detail ── */
-.day-detail { background: var(--bg-surface-0); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 20px; }
+.day-detail { background: var(--bg-surface-0); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 20px; max-height: 520px; overflow-y: auto; position: sticky; top: 28px; }
 .day-detail h3 { margin: 0 0 14px; font-size: 1.45rem; font-weight: 800; font-family: var(--font-mono); letter-spacing: -0.02em; }
 .day-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
 
