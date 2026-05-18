@@ -38,7 +38,7 @@ function DriveDetail({ activity }) {
         <DetailMetric label="Velocidad media" value={`${fmtNumber(activity.avg_speed_kmh, 1)} km/h`} />
         <DetailMetric label="Velocidad máxima" value={`${fmtNumber(activity.max_speed_kmh, 1)} km/h`} />
         <DetailMetric label="SoC" value={`${fmtPercent(activity.soc_start)} → ${fmtPercent(activity.soc_end)}`} />
-        <DetailMetric label="Tramos" value={activity.merged ? `${activity.merged_count} unidos` : '1'} />
+        <DetailMetric label="Consumo" value={Number.isFinite(activity.consumption_kwh_100km) ? `${fmtNumber(activity.consumption_kwh_100km, 1)} kWh/100km` : '—'} />
       </div>
 
       {activity.merged ? (

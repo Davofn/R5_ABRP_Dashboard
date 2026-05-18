@@ -1,4 +1,20 @@
 export const HOME_KWH_PRICE_EUR = 0.1176;
+export const BATTERY_CAPACITY_KWH = 52;
+
+function computeConsumption(drive) {
+  const km = Number(drive.distance_km);
+  const socStart = Number(drive.soc_start);
+  const socEnd = Number(drive.soc_end);
+  if (!Number.isFinite(km) || km < 1) return null;
+  if (!Number.isFinite(socStart) || !Number.isFinite(socEnd)) return null;
+  // soc values could be 0-1 or 0-100
+  const s0 = socStart <= 1 ? socStart : socStart / 100;
+  const s1 = socEnd <= 1 ? socEnd : socEnd / 100;
+  const delta = s0 - s1;
+  if (delta <= 0) return null; // charged during drive? skip
+  const kwhUsed = delta * BATTERY_CAPACITY_KWH;
+  return (kwhUsed / km) * 100; // kWh/100km
+}
 
 export function normalizeData(raw, manualChargeCosts = {}) {
   const rawActivities = (raw.activities || []).map((a) => {
@@ -17,6 +33,9 @@ export function normalizeData(raw, manualChargeCosts = {}) {
       if (activity.kind === 'charge') {
         activity.charge_category = classifyCharge(activity);
         applyChargeCost(activity, manualChargeCosts);
+      }
+      if (activity.kind === 'drive') {
+        activity.consumption_kwh_100km = computeConsumption(activity);
       }
       return activity;
     })
@@ -392,6 +411,13 @@ function buildStats(baseStats, drives, charges, activities) {
     }
   });
 
+  const consumptions = drives.map((d) => d.consumption_kwh_100km).filter(Number.isFinite);
+  const avgConsumption = consumptions.length ? consumptions.reduce((a, b) => a + b, 0) / consumptions.length : null;
+  const minConsumption = consumptions.length ? Math.min(...consumptions) : null;
+  const maxConsumption = consumptions.length ? Math.max(...consumptions) : null;
+  const totalKm = drives.reduce((sum, d) => sum + Number(d.distance_km || 0), 0);
+  const estimatedRange = avgConsumption > 0 ? (BATTERY_CAPACITY_KWH / avgConsumption) * 100 : null;
+
   return {
     ...baseStats,
     activities: activities.length,
@@ -402,6 +428,12 @@ function buildStats(baseStats, drives, charges, activities) {
     charge_kwh: charges.reduce((sum, charge) => sum + Number(charge.energy_kwh || 0), 0) || baseStats.charge_kwh || 0,
     longest_drive_km: drives.reduce((max, drive) => Math.max(max, Number(drive.distance_km || 0)), 0),
     max_drive_speed_kmh: drives.reduce((max, drive) => Math.max(max, Number(drive.max_speed_kmh || 0)), 0),
+    total_km: totalKm,
+    avg_consumption: avgConsumption,
+    min_consumption: minConsumption,
+    max_consumption: maxConsumption,
+    estimated_range_km: estimatedRange,
+    consumption_samples: consumptions.length,
     merged_drives: drives.filter((drive) => drive.merged).length,
     merged_charges: charges.filter((charge) => charge.merged_charge).length,
     charge_breakdown: breakdown

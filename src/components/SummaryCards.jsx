@@ -62,12 +62,14 @@ export default function SummaryCards({ data }) {
 
   return (
     <section className="summary-grid">
+      <Card icon={icons.gauge} label="Consumo medio" value={stats.avg_consumption ? `${fmtNumber(stats.avg_consumption, 1)} kWh` : '—'} hint={stats.consumption_samples ? `${stats.consumption_samples} trayectos · /100km` : 'sin datos'} />
+      <Card icon={icons.road}  iconColor="blue" label="Autonomía real estimada" value={stats.estimated_range_km ? fmtKm(stats.estimated_range_km) : '—'} hint="batería 52 kWh completa" />
+      <Card icon={icons.road}  iconColor="blue" label="Km totales" value={fmtKm(stats.total_km)} hint={`${stats.drives || 0} trayectos`} />
       <Card icon={icons.bolt}  label="Energía cargada" value={fmtKwh(stats.charge_kwh)} hint={`${stats.charges || 0} sesiones`} />
       <Card icon={icons.clock} iconColor="blue" label="Tiempo conduciendo" value={fmtMinutes(stats.drive_minutes)} hint={`${stats.drives || 0} trayectos`} />
       <Card icon={icons.road}  iconColor="blue" label="Trayecto más largo" value={fmtKm(stats.longest_drive_km)} hint="máximo del periodo" />
       <Card icon={icons.home}  label="AC en casa" value={`${b.ac_home_count || 0}`} hint={fmtMinutes(b.ac_home_minutes)} />
       <Card icon={icons.plug}  iconColor="purple" label="AC fuera" value={`${b.ac_away_count || 0}`} hint={fmtMinutes(b.ac_away_minutes)} />
-      <Card icon={icons.bolt}  iconColor="purple" label="DC" value={`${b.dc_count || 0}`} hint={fmtMinutes(b.dc_minutes)} />
       <Card icon={icons.gauge} label="Pico AC" value={`${fmtNumber(b.ac_max_power_kw, 1)} kW`} hint="máximo real AC" />
       <Card icon={icons.gauge} iconColor="purple" label="Pico DC" value={`${fmtNumber(b.dc_max_power_kw, 1)} kW`} hint="máximo real DC" />
       <Card icon={icons.euro}  iconColor="amber" label="Coste casa" value={fmtEur(b.home_cost_eur)} hint={`${fmtNumber(HOME_KWH_PRICE_EUR, 4)} €/kWh`} />

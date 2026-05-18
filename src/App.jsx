@@ -4,6 +4,7 @@ import CalendarView from './components/CalendarView.jsx';
 import MapView from './components/MapView.jsx';
 import ChargingCurve from './components/ChargingCurve.jsx';
 import DailyCharts from './components/DailyCharts.jsx';
+import ConsumptionChart from './components/ConsumptionChart.jsx';
 import ActivityDetail from './components/ActivityDetail.jsx';
 import ImportPanel from './components/ImportPanel.jsx';
 import { normalizeData, HOME_KWH_PRICE_EUR } from './utils/calculations.js';
@@ -289,6 +290,7 @@ export default function App() {
               <section className="view-section">
                 <SummaryCards data={data} />
                 <DailyCharts days={data.days} />
+                <ConsumptionChart drives={data.drives} avgConsumption={data.stats.avg_consumption} />
               </section>
             )}
 
