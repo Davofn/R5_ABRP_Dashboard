@@ -127,6 +127,7 @@ function ChargeDetail({ activity, onSaveChargeCost }) {
         <DetailMetric label="Potencia media" value={`${fmtNumber(activity.avg_power_kw, 1)} kW`} />
         <DetailMetric label="Potencia máxima" value={`${fmtNumber(activity.max_power_kw, 1)} kW`} />
         <DetailMetric label="SoC" value={`${fmtPercent(activity.soc_start)} → ${fmtPercent(activity.soc_end)}`} />
+        <DetailMetric label="Capacidad implícita" value={Number.isFinite(activity.implied_capacity_kwh) ? `${fmtNumber(activity.implied_capacity_kwh, 1)} kWh` : '—'} />
         <DetailMetric label="Coste" value={costLabel} />
         <DetailMetric label="Tramos" value={activity.merged_charge ? `${activity.merged_count} unidos` : '1'} />
       </div>

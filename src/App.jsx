@@ -5,6 +5,7 @@ import MapView from './components/MapView.jsx';
 import ChargingCurve from './components/ChargingCurve.jsx';
 import DailyCharts from './components/DailyCharts.jsx';
 import ConsumptionChart from './components/ConsumptionChart.jsx';
+import SocHistory from './components/SocHistory.jsx';
 import ActivityDetail from './components/ActivityDetail.jsx';
 import ImportPanel from './components/ImportPanel.jsx';
 import { normalizeData, HOME_KWH_PRICE_EUR } from './utils/calculations.js';
@@ -95,6 +96,12 @@ function ChargeSummaryCards({ data }) {
         <span className="card-label">Coste total</span>
         <strong className="card-value">{fmtEur(totalCost)}</strong>
         <small className="card-hint">casa + fuera</small>
+      </article>
+      <article className="summary-card">
+        <div className="card-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="6" width="18" height="12" rx="2"/><path d="M23 13v-2"/></svg></div>
+        <span className="card-label">Capacidad real estimada</span>
+        <strong className="card-value">{stats.avg_implied_capacity_kwh ? `${fmtNumber(stats.avg_implied_capacity_kwh, 1)} kWh` : '—'}</strong>
+        <small className="card-hint">{stats.implied_capacity_samples || 0} cargas analizadas</small>
       </article>
     </div>
   );
@@ -323,6 +330,7 @@ export default function App() {
                 </div>
 
                 <ChargeSummaryCards data={data} />
+                <SocHistory activities={data.activities} />
                 <CalendarView days={data.days} selectedDate={selectedDate} onSelectDate={handleSelectDate} onSelectActivity={handleSelectActivity} />
                 <ChargingCurve charges={data.charges} selectedActivity={selectedActivity} onSelectCharge={handleSelectActivity} />
                 {selectedActivity && (

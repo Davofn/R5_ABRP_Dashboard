@@ -64,7 +64,6 @@ export default function SummaryCards({ data }) {
     <section className="summary-grid">
       <Card icon={icons.gauge} label="Consumo medio" value={stats.avg_consumption ? `${fmtNumber(stats.avg_consumption, 1)} kWh` : '—'} hint={stats.consumption_samples ? `${stats.consumption_samples} trayectos · /100km` : 'sin datos'} />
       <Card icon={icons.road}  iconColor="blue" label="Autonomía real estimada" value={stats.estimated_range_km ? fmtKm(stats.estimated_range_km) : '—'} hint="batería 52 kWh completa" />
-      <Card icon={icons.road}  iconColor="blue" label="Km totales" value={fmtKm(stats.total_km)} hint={`${stats.drives || 0} trayectos`} />
       <Card icon={icons.bolt}  label="Energía cargada" value={fmtKwh(stats.charge_kwh)} hint={`${stats.charges || 0} sesiones`} />
       <Card icon={icons.clock} iconColor="blue" label="Tiempo conduciendo" value={fmtMinutes(stats.drive_minutes)} hint={`${stats.drives || 0} trayectos`} />
       <Card icon={icons.road}  iconColor="blue" label="Trayecto más largo" value={fmtKm(stats.longest_drive_km)} hint="máximo del periodo" />

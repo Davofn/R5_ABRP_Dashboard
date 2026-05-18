@@ -16,6 +16,19 @@ function computeConsumption(drive) {
   return (kwhUsed / km) * 100; // kWh/100km
 }
 
+function computeImpliedCapacity(charge) {
+  const kwh = Number(charge.energy_kwh);
+  const socStart = Number(charge.soc_start);
+  const socEnd = Number(charge.soc_end);
+  if (!Number.isFinite(kwh) || kwh <= 0) return null;
+  if (!Number.isFinite(socStart) || !Number.isFinite(socEnd)) return null;
+  const s0 = socStart <= 1 ? socStart : socStart / 100;
+  const s1 = socEnd <= 1 ? socEnd : socEnd / 100;
+  const delta = s1 - s0;
+  if (delta <= 0.02) return null;
+  return kwh / delta;
+}
+
 export function normalizeData(raw, manualChargeCosts = {}) {
   const rawActivities = (raw.activities || []).map((a) => {
     const kind = a.type === 'Carga' ? 'charge' : 'drive';
@@ -33,6 +46,7 @@ export function normalizeData(raw, manualChargeCosts = {}) {
       if (activity.kind === 'charge') {
         activity.charge_category = classifyCharge(activity);
         applyChargeCost(activity, manualChargeCosts);
+        activity.implied_capacity_kwh = computeImpliedCapacity(activity);
       }
       if (activity.kind === 'drive') {
         activity.consumption_kwh_100km = computeConsumption(activity);
@@ -412,6 +426,8 @@ function buildStats(baseStats, drives, charges, activities) {
   });
 
   const consumptions = drives.map((d) => d.consumption_kwh_100km).filter(Number.isFinite);
+  const impliedCapacities = charges.map((c) => c.implied_capacity_kwh).filter(Number.isFinite);
+  const avgImpliedCapacity = impliedCapacities.length ? impliedCapacities.reduce((a, b) => a + b, 0) / impliedCapacities.length : null;
   const avgConsumption = consumptions.length ? consumptions.reduce((a, b) => a + b, 0) / consumptions.length : null;
   const minConsumption = consumptions.length ? Math.min(...consumptions) : null;
   const maxConsumption = consumptions.length ? Math.max(...consumptions) : null;
@@ -434,6 +450,8 @@ function buildStats(baseStats, drives, charges, activities) {
     max_consumption: maxConsumption,
     estimated_range_km: estimatedRange,
     consumption_samples: consumptions.length,
+    avg_implied_capacity_kwh: avgImpliedCapacity,
+    implied_capacity_samples: impliedCapacities.length,
     merged_drives: drives.filter((drive) => drive.merged).length,
     merged_charges: charges.filter((charge) => charge.merged_charge).length,
     charge_breakdown: breakdown
