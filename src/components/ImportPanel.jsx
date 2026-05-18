@@ -32,20 +32,21 @@ export default function ImportPanel({ importedActivities, onImportActivities, on
     setShowDetails(false);
 
     const result = await parseAbrpExcelFiles(files);
-    const imported = onImportActivities(result.activities);
-    const skipped = result.activities.length - imported.added;
+    const imported = await onImportActivities(result.activities);
     const nextImport = {
       files: files.length,
       parsed: result.activities.length,
       added: imported.added,
-      skipped,
+      updated: imported.updated || 0,
       activities: result.activities || []
     };
     setLastImport(nextImport);
     setErrors(result.errors || []);
-    setStatus(
-      `${imported.added} actividad(es) añadida(s). ${skipped > 0 ? `${skipped} duplicada(s) ignorada(s).` : ''}`
-    );
+    const parts = [];
+    if (imported.added) parts.push(`${imported.added} nueva(s)`);
+    if (imported.updated) parts.push(`${imported.updated} actualizada(s)`);
+    if (!parts.length) parts.push('Sin cambios');
+    setStatus(parts.join(', ') + '.');
   }
 
   function handleDrop(event) {
@@ -58,16 +59,19 @@ export default function ImportPanel({ importedActivities, onImportActivities, on
     const file = event.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       try {
         const parsed = JSON.parse(String(reader.result || '{}'));
-        const result = onImportBackup(parsed);
-        setStatus(`Backup importado: ${result.added} actividad(es) añadida(s).`);
+        const result = await onImportBackup(parsed);
+        const parts = [];
+        if (result.added) parts.push(`${result.added} nueva(s)`);
+        if (result.updated) parts.push(`${result.updated} actualizada(s)`);
+        setStatus(`Backup importado: ${parts.join(', ') || 'sin cambios'}.`);
         setLastImport({
           files: 1,
           parsed: Array.isArray(parsed?.activities) ? parsed.activities.length : 0,
           added: result.added,
-          skipped: 0,
+          updated: result.updated || 0,
           activities: Array.isArray(parsed?.activities) ? parsed.activities : []
         });
         setShowDetails(false);
@@ -134,7 +138,7 @@ export default function ImportPanel({ importedActivities, onImportActivities, on
               {status ? <strong>{status}</strong> : <strong>Resultado de importación</strong>}
               {lastImport ? (
                 <small>
-                  {lastImport.files} archivo(s) procesado(s) · {lastImport.parsed} actividad(es) detectada(s) · {lastImport.added} nueva(s) · {lastImport.skipped} duplicada(s)
+                  {lastImport.files} archivo(s) procesado(s) · {lastImport.parsed} actividad(es) detectada(s) · {lastImport.added} nueva(s){lastImport.updated ? ` · ${lastImport.updated} actualizada(s)` : ''}
                 </small>
               ) : null}
             </div>

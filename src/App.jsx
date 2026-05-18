@@ -7,7 +7,7 @@ import DailyCharts from './components/DailyCharts.jsx';
 import ActivityDetail from './components/ActivityDetail.jsx';
 import ImportPanel from './components/ImportPanel.jsx';
 import { normalizeData } from './utils/calculations.js';
-import { loadActivities, saveActivities, deleteAllActivities, loadManualCosts, saveManualCosts } from './utils/supabase.js';
+import { loadActivities, saveActivities, deleteAllActivities, deleteActivity, loadManualCosts, saveManualCosts } from './utils/supabase.js';
 import { dateTimeLabel, fmtKm, fmtKwh, fmtMinutes, fmtNumber } from './utils/formatters.js';
 import './styles.css';
 
@@ -28,12 +28,18 @@ function mergeActivities(existing, incoming) {
   const byId = new Map();
   existing.forEach((a) => byId.set(a.id, a));
   let added = 0;
+  let updated = 0;
   incoming.forEach((a) => {
-    if (!a?.id || byId.has(a.id)) return;
-    byId.set(a.id, a);
-    added += 1;
+    if (!a?.id) return;
+    if (byId.has(a.id)) {
+      byId.set(a.id, a);
+      updated += 1;
+    } else {
+      byId.set(a.id, a);
+      added += 1;
+    }
   });
-  return { activities: Array.from(byId.values()), added };
+  return { activities: Array.from(byId.values()), added, updated };
 }
 
 function buildData(activities, manualChargeCosts) {
@@ -186,6 +192,21 @@ export default function App() {
     return handleImportActivities(list);
   }, [handleImportActivities]);
 
+  const handleDeleteActivity = useCallback(async (activityId) => {
+    if (!window.confirm('¿Borrar esta actividad? Se elimina de la nube y del navegador.')) return;
+    const filtered = activities.filter((a) => a.id !== activityId);
+    setActivities(filtered);
+    if (selectedActivity?.id === activityId) setSelectedActivity(null);
+    localStorage.setItem(IMPORTED_ACTIVITIES_KEY, JSON.stringify(filtered));
+    try {
+      await deleteActivity(activityId);
+      setSyncStatus(`✓ ${filtered.length} actividades`);
+    } catch (err) {
+      console.warn('Supabase delete single failed:', err);
+      setSyncStatus('⚠ Error al borrar');
+    }
+  }, [activities, selectedActivity]);
+
   const handleSaveChargeCost = useCallback((chargeId, value) => {
     setManualChargeCosts((current) => {
       const next = { ...current };
@@ -287,7 +308,7 @@ export default function App() {
             onSelectCharge={handleSelectActivity}
           />
 
-          <ActivityDetail activity={selectedActivity} onSaveChargeCost={handleSaveChargeCost} />
+          <ActivityDetail activity={selectedActivity} onSaveChargeCost={handleSaveChargeCost} onDeleteActivity={handleDeleteActivity} />
         </>
       )}
 

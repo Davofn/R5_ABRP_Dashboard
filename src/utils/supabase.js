@@ -77,6 +77,19 @@ export async function deleteAllActivities() {
 }
 
 /**
+ * Delete a single activity by ID
+ * @param {string} id
+ * @returns {Promise<void>}
+ */
+export async function deleteActivity(id) {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.${encodeURIComponent(id)}`,
+    { method: 'DELETE', headers }
+  );
+  if (!res.ok) throw new Error(`Supabase delete single failed: ${res.status}`);
+}
+
+/**
  * Load manual charge costs from Supabase (stored as a single meta row)
  * @returns {Promise<Object>} costs object { chargeId: eurAmount }
  */

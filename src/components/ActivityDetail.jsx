@@ -146,7 +146,7 @@ function ChargeDetail({ activity, onSaveChargeCost }) {
   );
 }
 
-export default function ActivityDetail({ activity, onSaveChargeCost }) {
+export default function ActivityDetail({ activity, onSaveChargeCost, onDeleteActivity }) {
   return (
     <section className="panel activity-detail-panel">
       {!activity ? (
@@ -161,6 +161,13 @@ export default function ActivityDetail({ activity, onSaveChargeCost }) {
         <DriveDetail activity={activity} />
       ) : (
         <ChargeDetail activity={activity} onSaveChargeCost={onSaveChargeCost} />
+      )}
+      {activity && onDeleteActivity && (
+        <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+          <button className="danger-button compact" onClick={() => onDeleteActivity(activity.id)}>
+            Borrar actividad
+          </button>
+        </div>
       )}
     </section>
   );
