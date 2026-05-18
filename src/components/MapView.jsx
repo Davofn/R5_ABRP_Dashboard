@@ -23,7 +23,7 @@ export default function MapView({ activities, selectedDate, selectedActivity, on
   useEffect(() => {
     if (mapRef.current) return;
     const map = L.map('r5-map', { scrollWheelZoom: true }).setView([40.42, -3.7], 10);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
       attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
       subdomains: 'abcd'
@@ -68,8 +68,8 @@ export default function MapView({ activities, selectedDate, selectedActivity, on
         bounds.push(p);
         const marker = L.circleMarker(p, {
           radius: selectedActivity?.id === activity.id ? 9 : 6,
-          color: '#34d399',
-          fillColor: '#34d399',
+          color: '#facc15',
+          fillColor: '#facc15',
           fillOpacity: 0.85,
           weight: 2
         }).addTo(layer);

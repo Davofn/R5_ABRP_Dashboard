@@ -3,14 +3,14 @@ import Chart from 'chart.js/auto';
 
 const CHART_COLORS = {
   drive: '#60a5fa',
-  charge: '#34d399',
+  charge: '#facc15',
   driveBg: 'rgba(96, 165, 250, 0.35)',
-  chargeBg: 'rgba(52, 211, 153, 0.25)',
-  grid: 'rgba(148, 163, 184, 0.08)',
-  tick: '#5a6a80',
-  label: '#8896ab',
-  tooltip: 'rgba(15, 23, 41, 0.95)',
-  tooltipBorder: 'rgba(148, 163, 184, 0.15)',
+  chargeBg: 'rgba(250, 204, 21, 0.25)',
+  grid: 'rgba(255, 255, 255, 0.05)',
+  tick: '#6b7280',
+  label: '#9ca3af',
+  tooltip: 'rgba(30, 32, 40, 0.95)',
+  tooltipBorder: 'rgba(255, 255, 255, 0.08)',
 };
 
 export default function DailyCharts({ days }) {
@@ -29,8 +29,8 @@ export default function DailyCharts({ days }) {
     driveGrad.addColorStop(1, 'rgba(96, 165, 250, 0.02)');
 
     const chargeGrad = ctx.createLinearGradient(0, 0, 0, 500);
-    chargeGrad.addColorStop(0, 'rgba(52, 211, 153, 0.4)');
-    chargeGrad.addColorStop(1, 'rgba(52, 211, 153, 0.02)');
+    chargeGrad.addColorStop(0, 'rgba(250, 204, 21, 0.45)');
+    chargeGrad.addColorStop(1, 'rgba(250, 204, 21, 0.02)');
 
     chartRef.current = new Chart(ctx, {
       type: 'bar',

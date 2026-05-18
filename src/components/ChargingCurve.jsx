@@ -92,13 +92,13 @@ function nicePowerMax(samples) {
 const CHART_STYLE = {
   socColor: '#60a5fa',
   socFill: 'rgba(96, 165, 250, 0.15)',
-  powerColor: '#34d399',
-  powerFill: 'rgba(52, 211, 153, 0.15)',
-  grid: 'rgba(148, 163, 184, 0.08)',
-  tooltip: 'rgba(10, 16, 28, 0.95)',
-  tooltipBorder: 'rgba(148, 163, 184, 0.2)',
-  label: '#94a3b8',
-  tick: '#64748b',
+  powerColor: '#facc15',
+  powerFill: 'rgba(250, 204, 21, 0.15)',
+  grid: 'rgba(255, 255, 255, 0.05)',
+  tooltip: 'rgba(30, 32, 40, 0.95)',
+  tooltipBorder: 'rgba(255, 255, 255, 0.08)',
+  label: '#9ca3af',
+  tick: '#6b7280',
 };
 
 export default function ChargingCurve({ charges, selectedActivity, onSelectCharge }) {
@@ -131,8 +131,8 @@ export default function ChargingCurve({ charges, selectedActivity, onSelectCharg
     socGrad.addColorStop(1, 'rgba(96, 165, 250, 0.01)');
 
     const powerGrad = ctx.createLinearGradient(0, 0, 0, 380);
-    powerGrad.addColorStop(0, 'rgba(52, 211, 153, 0.25)');
-    powerGrad.addColorStop(1, 'rgba(52, 211, 153, 0.01)');
+    powerGrad.addColorStop(0, 'rgba(250, 204, 21, 0.25)');
+    powerGrad.addColorStop(1, 'rgba(250, 204, 21, 0.01)');
 
     if (chartRef.current) chartRef.current.destroy();
     chartRef.current = new Chart(ctx, {
